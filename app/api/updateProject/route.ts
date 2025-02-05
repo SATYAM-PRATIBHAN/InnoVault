@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         // Update the project based on the action
         const updatedData = jsonData.map((project: any) => {
             if (project.id === id) {
-                let updatedProject = { ...project };
+                const updatedProject = { ...project };
                 if (action === "upvote") {
                     updatedProject.upvotes = remove ? updatedProject.upvotes - 1 : updatedProject.upvotes + 1;
                 } else if (action === "claim") {
