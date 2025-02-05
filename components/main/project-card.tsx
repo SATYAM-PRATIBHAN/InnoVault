@@ -30,9 +30,9 @@ export default function ProjectCard({ data }: ProjectCardProps) {
         let upvotedProjects = JSON.parse(localStorage.getItem("upvotedProjects") || "[]");
         let claimedProjects = JSON.parse(localStorage.getItem("claimedProjects") || "[]");
 
-        let isUpvoting = action === "upvote";
-        let isClaiming = action === "claim";
-        let shouldRemove = (isUpvoting && hasUpvoted) || (isClaiming && hasClaimed);
+        const isUpvoting = action === "upvote";
+        const isClaiming = action === "claim";
+        const shouldRemove = (isUpvoting && hasUpvoted) || (isClaiming && hasClaimed);
 
         const response = await fetch("/api/updateProject", {
             method: "POST",

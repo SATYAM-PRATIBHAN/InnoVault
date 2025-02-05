@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { RoughNotation } from "react-rough-notation";
 import BlurFade from "../ui/blur-fade";
 import HeroButton from "../ui/hero-button";

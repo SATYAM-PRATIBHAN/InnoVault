@@ -88,7 +88,6 @@ export default function ProjectList() {
         const { name, value } = e.target;
     
         if (name === "tags") {
-            //@ts-ignore
             setNewProject((prev) => ({
                 ...prev,
                 [name]: value, 

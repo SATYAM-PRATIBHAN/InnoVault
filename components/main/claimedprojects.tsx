@@ -29,9 +29,9 @@ export default function ClaimedProjects() {
     const [isSubmitted, setIsSubmitted] = useState<{ [key: string]: boolean }>({});
 
     useEffect(() => {
-        //@ts-ignore
-        const storedClaims = JSON.parse(localStorage.getItem("claimedProjects")) || [];
-        setClaimedProjects(storedClaims);
+        const storedClaims = localStorage.getItem("claimedProjects");
+        const parsedClaims = storedClaims ? JSON.parse(storedClaims) : [];
+        setClaimedProjects(parsedClaims);
         setLoading(false);
     }, []);
 
@@ -55,7 +55,7 @@ export default function ClaimedProjects() {
     };
 
     const handleSaveToCSV = () => {
-        if (!userEmail || !githubLink) return;
+        if (!userEmail || !githubLink || !selectedProject) return;
 
         fetch("/api/saveCompletedProject", {
             method: "POST",
@@ -65,7 +65,6 @@ export default function ClaimedProjects() {
 
         setIsSubmitted((prevState) => ({
             ...prevState,
-            //@ts-ignore
             [selectedProject]: true, // Mark the project as submitted
         }));
 
@@ -89,7 +88,7 @@ export default function ClaimedProjects() {
             ) : (
                 <div className={claimedProjects.length === 0 ? "flex justify-center items-center p-6 h-screen max-w-screen-2xl mx-auto" : "p-6 max-w-screen-2xl mx-auto"}>
                     {claimedProjects.length === 0 ? (
-                        <p className="text-base sm:text-lg md:text-xl">You haven't claimed any projects yet.</p>
+                        <p className="text-base sm:text-lg md:text-xl">You haven&apos;t claimed any projects yet.</p>
                     ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                                 {currentProjects.map((project) => (

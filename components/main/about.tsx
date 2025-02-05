@@ -49,7 +49,7 @@ export default function About() {
             you can explore trending projects, contribute meaningful discussions, and bring your ideas to life.
           </p>
           <p className="text-gray-900 mt-4 leading-relaxed">
-            Whether you're a beginner looking for a first project or an experienced developer seeking fresh challenges, 
+            Whether you&apos;re a beginner looking for a first project or an experienced developer seeking fresh challenges, 
             InnoVault provides the right space to explore, build, and grow in an open-source environment.
           </p>
         </motion.div>

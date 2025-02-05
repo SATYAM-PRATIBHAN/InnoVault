@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# InnoVault
 
-## Getting Started
+InnoVault is an open-source idea vault where developers can share, upvote, and discuss project ideas. The platform allows multiple users to claim and work on an idea simultaneously. Each user's interaction with an idea is tracked individually, ensuring personalized status updates. InnoVault encourages collaboration and innovation by providing a space to explore and execute new projects.
 
-First, run the development server:
+![image](https://github.com/user-attachments/assets/b7715286-1867-4454-a6f2-347b978db154)
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Community-Driven Idea Repository**: Users can browse and contribute project ideas.
+- **Upvote System**: Vote on ideas to highlight popular and impactful projects.
+- **Claiming System**: Multiple users can claim an idea to work on it.
+- **Project Card Metrics**: Displays the number of upvotes and claims for better visibility.
+- **Monochrome Theme**: Aesthetic and modern UI with a minimalist design.
+- **Data Storage**: Uses CSV files and localStorage instead of a database.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Tech Stack
 
-## Learn More
+- **Frontend**: TypeScript, Next.js
+- **Storage**: CSV file, localStorage
+- **Styling**: Custom monochrome theme with Tailwind CSS
 
-To learn more about Next.js, take a look at the following resources:
+## Installation & Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/yourusername/innovault.git
+   ```
+2. Navigate to the project directory:
+   ```sh
+   cd innovault
+   ```
+3. Install dependencies:
+   ```sh
+   npm install
+   ```
+4. Start the development server:
+   ```sh
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Usage
 
-## Deploy on Vercel
+- Browse project ideas and upvote interesting ones.
+- Claim ideas to work on them.
+- Contribute new ideas to the platform.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Contribution
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Contributions are welcome! Follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch:
+   ```sh
+   git checkout -b feature-branch
+   ```
+3. Make your changes and commit them:
+   ```sh
+   git commit -m "Add new feature"
+   ```
+4. Push to your forked repository:
+   ```sh
+   git push origin feature-branch
+   ```
+5. Submit a Pull Request.
+
+## License
+
+This project is open-source and available under the [MIT License](LICENSE).
+
+## Contact
+
+For any inquiries or collaborations, feel free to reach out!
