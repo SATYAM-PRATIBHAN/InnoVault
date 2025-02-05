@@ -10,20 +10,36 @@ export async function POST(req: Request) {
             return NextResponse.json({ message: "All fields are required" }, { status: 400 });
         }
 
-        const filePath = path.join(process.cwd(), "public", "projects.csv");
+        const filePath = path.join(process.cwd(), "public", "projects.json");
 
-        // Read CSV file
-        const csvData = fs.readFileSync(filePath, "utf8");
-        const rows = csvData.trim().split("\n");
-        const lastRow = rows.length > 1 ? rows[rows.length - 1].split(",") : [];
-        const lastId = lastRow.length ? parseInt(lastRow[0], 10) || 0 : 0;
-        const newId = lastId + 1;
+        // Read JSON file
+        let jsonData = [];
+        if (fs.existsSync(filePath)) {
+            const fileData = fs.readFileSync(filePath, "utf8");
+            jsonData = JSON.parse(fileData);
+        }
 
-        // New entry for CSV
-        const newEntry = `${newId},${title},${description},"${tags}",0,0,0,New,${creatorEmail}\n`;
+        // Generate a new ID
+        const newId = jsonData.length ? jsonData[jsonData.length - 1].id + 1 : 1;
 
-        // Append to CSV file
-        fs.appendFileSync(filePath, newEntry, "utf8");
+        // New project entry
+        const newProject = {
+            id: newId,
+            title,
+            description,
+            tags,
+            upvotes: 0,
+            comments: 0,
+            claims: 0,
+            status: "New",
+            creatorEmail
+        };
+
+        // Add new project to the array
+        jsonData.push(newProject);
+
+        // Write updated JSON data back to file
+        fs.writeFileSync(filePath, JSON.stringify(jsonData, null, 2), "utf8");
 
         return NextResponse.json({ message: "Project added successfully!" }, { status: 201 });
     } catch (error) {

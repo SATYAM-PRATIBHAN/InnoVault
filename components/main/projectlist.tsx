@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Papa from "papaparse";
 import ProjectCard from "./project-card";
 import { Project } from "@/public/types";
 import { RoughNotation } from "react-rough-notation";
 import BlurFade from "../ui/blur-fade";
 import { PacmanLoader } from "react-spinners";
-
 
 export default function ProjectList() {
     const [projects, setProjects] = useState<Project[]>([]);
@@ -30,43 +28,33 @@ export default function ProjectList() {
     });
 
     useEffect(() => {
-        fetch("/projects.csv")
+        fetch("/projects.json")
             .then((response) => {
                 if (!response.ok) {
-                    throw new Error("Failed to fetch CSV file");
+                    throw new Error("Failed to fetch JSON file");
                 }
-                return response.text();
+                return response.json();
             })
-            .then((csvData) => {
-                const parsedData = parseCSV(csvData);
+            .then((jsonData) => {
+                const parsedData = jsonData.map((project: any) => ({
+                    id: project.id,
+                    title: project.title,
+                    description: project.description,
+                    tags: project.tags ? project.tags.split(",") : [], // Ensure tags are an array
+                    upvotes: project.upvotes,
+                    claims: project.claims,
+                    completed: project.completed,
+                    status: project.status,
+                    creatorEmail: project.creatorEmail,
+                }));
                 setProjects(parsedData);
                 setLoading(false);
             })
             .catch((error) => {
-                console.error("Error fetching CSV:", error);
+                console.error("Error fetching JSON:", error);
                 setLoading(false);
             });
     }, []);
-
-    function parseCSV(csvText: string): Project[] {
-        const parsed = Papa.parse(csvText, {
-            header: true,
-            skipEmptyLines: true,
-            dynamicTyping: true,
-        });
-
-        return parsed.data.map((row: any) => ({
-            id: row.id,
-            title: row.title,
-            description: row.description,
-            tags: row.tags.split(","),
-            upvotes: row.upvotes,
-            claims: row.claims,
-            completed: row.completed,
-            status: row.status,
-            creatorEmail: row.creator_email,
-        }));
-    }
 
     const filteredProjects = projects.filter((project) =>
         project.tags.some((tag) =>
@@ -284,10 +272,9 @@ export default function ProjectList() {
                             </form>
                         </div>
                     </div>
-                    )} 
+                    )}
                 </>
             )}
         </div>
     );
-    
 }

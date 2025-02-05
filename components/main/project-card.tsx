@@ -71,7 +71,7 @@ export default function ProjectCard({ data }: ProjectCardProps) {
                 localStorage.setItem("claimedProjects", JSON.stringify(claimedProjects));
             }
 
-            setProject({ ...project }); 
+            setProject({ ...project }); // Update state with modified project
         } else {
             alert("Failed to update project.");
         }
