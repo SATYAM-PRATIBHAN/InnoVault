@@ -1,6 +1,7 @@
 // /api/saveCompletedProject/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
+import { retry } from "@/utils/retry";
 
 
 export async function POST(request: Request) {
@@ -18,9 +19,9 @@ export async function POST(request: Request) {
         }
 
         // Check if the project exists
-        const project = await db.project.findUnique({
+        const project = await retry(() => db.project.findUnique({
             where: { id: projectId },
-        });
+        }))
 
         if (!project) {
             return NextResponse.json(

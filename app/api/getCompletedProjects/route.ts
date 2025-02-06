@@ -1,6 +1,7 @@
 // /api/getCompletedProjects/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
+import { retry } from "@/utils/retry";
 
 
 export async function GET(request: Request) {
@@ -15,12 +16,12 @@ export async function GET(request: Request) {
             ...(userEmail && { userEmail }),
         };
 
-        const completedProjects = await db.completedProject.findMany({
+        const completedProjects = await retry(() => db.completedProject.findMany({
             where,
             include: {
                 project: true, 
             },
-        });
+        }))
 
         return NextResponse.json(
             { message: "Completed projects fetched successfully.", completedProjects },

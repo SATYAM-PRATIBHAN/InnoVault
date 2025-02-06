@@ -1,4 +1,5 @@
 import { db } from "@/lib/prisma";  // ✅ Import global database instance
+import { retry } from "@/utils/retry";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -17,26 +18,26 @@ export async function POST(req: NextRequest) {
         // Update the project based on the action
         let updatedProject;
         if (action === "upvote") {
-            updatedProject = await db.project.update({
+            updatedProject = await retry(() => db.project.update({
                 where: { id },
                 data: {
                     upvotes: remove ? project.upvotes - 1 : project.upvotes + 1,
                 },
-            });
+            }))
         } else if (action === "claim") {
-            updatedProject = await db.project.update({
+            updatedProject = await retry(() => db.project.update({
                 where: { id },
                 data: {
                     claims: remove ? project.claims - 1 : project.claims + 1,
                 },
-            });
+            }))
         } else if (action === "complete") {
-            updatedProject = await db.project.update({
+            updatedProject = await retry(() => db.project.update({
                 where: { id },
                 data: {
                     completed: remove ? project.completed - 1 : project.completed + 1,
                 },
-            });
+            }))
         } else {
             return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
         }

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/prisma"; 
+import { db } from "@/lib/prisma";
+import { retry } from "@/utils/retry";
 
 export async function POST(req: Request) {
     try {
@@ -8,27 +9,30 @@ export async function POST(req: Request) {
         if (!title || !description || !tags || !creatorEmail) {
             return NextResponse.json({ message: "All fields are required" }, { status: 400 });
         }
-        const tagArray = tags.split(",").map((tag: string) => tag.trim());
-        // Insert new project into the database
-        const newProject = await db.project.create({
-            data: {
-                title,
-                description,
-                tags : tagArray, // ✅ Convert array to JSON string
-                upvotes: 0,
-                claims: 0,
-                completed: 0,
-                status: "New",
-                creatorEmail,
-            },
-        });
 
-        alert("Project added successfully!");
+        const tagArray = tags.split(",").map((tag: string) => tag.trim());
+
+        // ✅ Use retry function for database call
+        const newProject = await retry(() => 
+            db.project.create({
+                data: {
+                    title,
+                    description,
+                    tags: tagArray,
+                    upvotes: 0,
+                    claims: 0,
+                    completed: 0,
+                    status: "New",
+                    creatorEmail,
+                },
+            })
+        );
 
         return NextResponse.json({ message: "Project added successfully!", project: newProject }, { status: 201 });
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Error adding project:", error);
-        return NextResponse.json({ message: "Internal Server Error", error }, { status: 500 });
+        const errorMessage = (error instanceof Error) ? error.message : "An unknown error occurred"; // Type check
+        return NextResponse.json({ message: "Internal Server Error", error: errorMessage }, { status: 500 });
     }
 }

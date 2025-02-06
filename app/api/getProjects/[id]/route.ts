@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
+import { retry } from "@/utils/retry";
 
 
 export async function GET(req: NextRequest) {
@@ -18,9 +19,9 @@ export async function GET(req: NextRequest) {
             return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
         }
 
-        const project = await db.project.findUnique({
+        const project = await retry(() => db.project.findUnique({
             where: { id: projectId },
-        });
+        }));
 
         if (!project) {
             return NextResponse.json({ error: "Project not found" }, { status: 404 });
