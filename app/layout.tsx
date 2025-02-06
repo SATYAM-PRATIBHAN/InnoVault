@@ -29,7 +29,7 @@ export const metadata: Metadata = {
     url: "https://yourdomain.com",
     images: [
       {
-        url: "/ss.png", // Reference the image in the public folder
+        url: "/ss1.png", // Reference the image in the public folder
         width: 1200,
         height: 630,
         alt: "InnoVault - Open Source Idea Vault",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     title: "InnoVault",
     description:
       "InnoVault is an open-source platform where developers share, upvote, and collaborate on project ideas.",
-    images: ["/ss.png"], // Reference the image in the public folder
+    images: ["/ss1.png"], // Reference the image in the public folder
   },
 };
 
