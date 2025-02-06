@@ -1,6 +1,13 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/prisma";  // ✅ Import global database instance
+import { NextApiRequest, NextApiResponse } from "next";
+import { restrictByIP } from "@/utils/ipWhiteList";
 
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+    restrictByIP(req, res, () => {
+        res.json({ message: "This route is restricted by IP." });
+    });
+}
 export async function POST(req: Request) {
     try {
         const { title, description, tags, creatorEmail } = await req.json();
@@ -24,7 +31,7 @@ export async function POST(req: Request) {
         });
 
         alert("Project added successfully!");
-        
+
         return NextResponse.json({ message: "Project added successfully!", project: newProject }, { status: 201 });
 
     } catch (error) {

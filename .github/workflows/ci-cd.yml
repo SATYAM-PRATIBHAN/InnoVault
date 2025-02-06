@@ -1,0 +1,51 @@
+# .github/workflows/ci-cd.yml
+
+name: CI Pipeline for Next.js Project
+
+on:
+  # Trigger the pipeline on push to the main branch or pull requests
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Caches node_modules
+      - name: Cache Dependencies
+        uses: actions/cache@v3
+        with:
+          path: node_modules
+          key: node-modules-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      # Step 3: Set up Node.js
+      - name: Set Up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18 # Use the Node.js version your project requires
+
+      # Step 4: Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Step 7: Lints the code
+      - name: Lint Code
+        run: npm run lint
+
+      # Step 6: Build the Next.js project
+      - name: Build Project
+        run: npm run build
+
+      
+

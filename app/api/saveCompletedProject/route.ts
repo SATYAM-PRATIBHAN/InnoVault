@@ -1,7 +1,14 @@
 // /api/saveCompletedProject/route.ts
 import { NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
+import { NextApiRequest, NextApiResponse } from "next";
+import { restrictByIP } from "@/utils/ipWhiteList";
 
+export default function handler(req: NextApiRequest, res: NextApiResponse) {
+    restrictByIP(req, res, () => {
+        res.json({ message: "This route is restricted by IP." });
+    });
+}
 
 export async function POST(request: Request) {
     try {
