@@ -1,5 +1,4 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { PacmanLoader } from "react-spinners";
 import { RoughNotation } from "react-rough-notation";
@@ -23,10 +22,10 @@ export default function ClaimedProjects() {
     const [currentPage, setCurrentPage] = useState(1);
     const projectsPerPage = 9;
     const [showModal, setShowModal] = useState(false);
-    const [selectedProject, setSelectedProject] = useState<string | null>(null);
+    const [selectedProjectId, setSelectedProjectId] = useState<number | null>(null); // Changed to store projectId
     const [userEmail, setUserEmail] = useState("");
     const [githubLink, setGithubLink] = useState("");
-    const [isSubmitted, setIsSubmitted] = useState<{ [key: string]: boolean }>({});
+    const [isSubmitted, setIsSubmitted] = useState<{ [key: number]: boolean }>({});
 
     useEffect(() => {
         const storedClaims = localStorage.getItem("claimedProjects");
@@ -38,7 +37,6 @@ export default function ClaimedProjects() {
         if (submittedProjects) {
             setIsSubmitted(JSON.parse(submittedProjects));
         }
-
         setLoading(false);
     }, []);
 
@@ -52,49 +50,63 @@ export default function ClaimedProjects() {
         window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    const handleSubmitProject = (projectName: string) => {
-        if (isSubmitted[projectName]) {
+    const handleSubmitProject = (projectId: number) => {
+        if (isSubmitted[projectId]) {
             alert("You have already submitted this project.");
             return;
         }
-
-        setSelectedProject(projectName);
+        setSelectedProjectId(projectId);
         setShowModal(true);
         setIsSubmitted((prevState) => ({
             ...prevState,
-            [projectName]: false, // Initially, the project is not submitted
+            [projectId]: false, // Initially, the project is not submitted
         }));
     };
 
-    const handleSaveToJSON = () => {
-        if (!userEmail || !githubLink || !selectedProject) return;
+    const handleSaveToJSON = async () => {
+        if (!userEmail || !githubLink || selectedProjectId === null) return;
 
-        fetch("/api/saveCompletedProject", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ projectName: selectedProject, userEmail, githubLink }),
-        });
+        try {
+            const response = await fetch("/api/saveCompletedProject", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    projectId: selectedProjectId, // Use projectId instead of projectName
+                    userEmail,
+                    githubLink,
+                }),
+            });
 
-        // Mark the project as submitted in the state and localStorage
-        setIsSubmitted((prevState) => {
-            const updated = { ...prevState, [selectedProject]: true };
-            localStorage.setItem("submittedProjects", JSON.stringify(updated)); // Save to localStorage
-            return updated;
-        });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to save completed project.");
+            }
 
-        setShowModal(false);
-        setUserEmail("");
-        setGithubLink("");
+            // Mark the project as submitted in the state and localStorage
+            setIsSubmitted((prevState) => {
+                const updated = { ...prevState, [selectedProjectId]: true };
+                localStorage.setItem("submittedProjects", JSON.stringify(updated)); // Save to localStorage
+                return updated;
+            });
+
+            setShowModal(false);
+            setUserEmail("");
+            setGithubLink("");
+        } catch (err) {
+            console.error(err);
+            alert("Error saving completed project.");
+        }
     };
 
     return (
-        <div className={claimedProjects.length <= 3 ? "mt-8 flex h-screen justify-center items-center flex-col mx-auto max-w-6xl px-4 md:px-8 lg:px-12" :"mt-8 flex justify-center items-center flex-col mx-auto max-w-6xl px-4 md:px-8 lg:px-12"}>
+        <div className={claimedProjects.length <= 3 ? "mt-8 flex h-screen justify-center items-center flex-col mx-auto max-w-6xl px-4 md:px-8 lg:px-12" : "mt-8 flex justify-center items-center flex-col mx-auto max-w-6xl px-4 md:px-8 lg:px-12"}>
             <div className="mb-8 text-center">
                 <BlurFade>
-                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold">Claimed <RoughNotation type="underline" animationDelay={500} show={true}>Projects</RoughNotation></h1>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold">
+                        Claimed <RoughNotation type="underline" animationDelay={500} show={true}>Projects</RoughNotation>
+                    </h1>
                 </BlurFade>
             </div>
-
             {loading ? (
                 <div className="flex justify-center items-center h-screen">
                     <PacmanLoader color="#000" loading={loading} size={20} />
@@ -110,20 +122,19 @@ export default function ClaimedProjects() {
                                     <h2 className="text-lg sm:text-xl md:text-2xl font-semibold mb-2 text-gray-900">{project.title}</h2>
                                     <p className="text-gray-700 text-sm mb-4">{project.description}</p>
                                     <div className="text-sm font-medium py-2 px-4 rounded-full bg-blue-100 text-blue-700 w-fit">Tags: {project.tags.join(", ") || "No tags"}</div>
-                                    <button 
-                                        onClick={() => handleSubmitProject(project.title)} 
+                                    <button
+                                        onClick={() => handleSubmitProject(project.id)} // Pass projectId instead of projectName
                                         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 w-full sm:w-auto"
-                                        disabled={isSubmitted[project.title]}
+                                        disabled={isSubmitted[project.id]} // Check submission status by projectId
                                     >
-                                        {isSubmitted[project.title] ? "Submitted" : "Submit Project"}
+                                        {isSubmitted[project.id] ? "Submitted" : "Submit Project"}
                                     </button>
                                 </div>
                             ))}
                         </div>
                     )}
-
                     {/* Pagination */}
-                    <div className={claimedProjects.length === 0 ? "hidden" : "flex justify-center mt-6 space-x-2"}>  
+                    <div className={claimedProjects.length === 0 ? "hidden" : "flex justify-center mt-6 space-x-2"}>
                         <button
                             onClick={() => handlePageChange(currentPage - 1)}
                             disabled={currentPage === 1}
@@ -150,28 +161,27 @@ export default function ClaimedProjects() {
                     </div>
                 </div>
             )}
-
             {/* Modal */}
             {showModal && (
                 <div className="fixed top-0 left-0 w-screen h-screen flex items-center justify-center bg-black bg-opacity-50 z-50">
                     <div className="bg-white p-6 rounded-lg shadow-lg max-w-sm sm:max-w-md md:max-w-lg w-full">
                         <h2 className="text-lg sm:text-xl font-semibold mb-4">Submit Project</h2>
-                        <input 
-                            type="email" 
-                            placeholder="Your Email" 
-                            value={userEmail} 
-                            onChange={(e) => setUserEmail(e.target.value.replace(/,/g, ""))} 
-                            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$" 
-                            className="border p-2 rounded w-full mb-2" 
-                            required 
+                        <input
+                            type="email"
+                            placeholder="Your Email"
+                            value={userEmail}
+                            onChange={(e) => setUserEmail(e.target.value.replace(/,/g, ""))}
+                            pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+                            className="border p-2 rounded w-full mb-2"
+                            required
                         />
-                        <input 
-                            type="url" 
-                            placeholder="GitHub Link" 
-                            value={githubLink} 
-                            onChange={(e) => setGithubLink(e.target.value.replace(/,/g, ""))} 
-                            className="border p-2 rounded w-full mb-2" 
-                            required 
+                        <input
+                            type="url"
+                            placeholder="GitHub Link"
+                            value={githubLink}
+                            onChange={(e) => setGithubLink(e.target.value.replace(/,/g, ""))}
+                            className="border p-2 rounded w-full mb-2"
+                            required
                         />
                         <div className="flex justify-end space-x-2">
                             <button onClick={() => setShowModal(false)} className="px-4 py-2 bg-gray-400 text-white rounded">Cancel</button>

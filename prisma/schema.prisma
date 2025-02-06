@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  tags        String[] // Assuming tags are stored as an array
+  upvotes     Int      @default(0)
+  claims      Int      @default(0)
+  completed   Int      @default(0)
+  status      String
+  creatorEmail String
+
+  completedProjects CompletedProject[]
+}
+
+model CompletedProject {
+  id          Int     @id @default(autoincrement())
+  projectId   Int     @unique
+  userEmail   String
+  githubLink  String
+  submittedAt DateTime @default(now())
+
+  project     Project @relation(fields: [projectId], references: [id])
+}

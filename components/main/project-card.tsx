@@ -1,17 +1,40 @@
-import { Project } from "@/public/types";
+"use client";
+
 import { useState, useEffect } from "react";
+import { Project } from "@/public/types";
+import Skeleton from "./projectcardskeleton";
 
 interface ProjectCardProps {
-    data: Project;
+    projectId: number;  // The ID of the project passed to the component
 }
 
-export default function ProjectCard({ data }: ProjectCardProps) {
-    const [project, setProject] = useState(data);
+export default function ProjectCard({ projectId }: ProjectCardProps) {
+    const [project, setProject] = useState<Project | null>(null);
     const [hasUpvoted, setHasUpvoted] = useState(false);
     const [hasClaimed, setHasClaimed] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
+        const fetchProjectData = async () => {
+            try {
+                const res = await fetch(`/api/getProjects/${projectId}`);
+                if (res.ok) {
+                    const data = await res.json();
+                    setProject(data);
+                } else {
+                    console.error("Failed to fetch project data");
+                }
+            } catch (error) {
+                console.error("Error fetching project:", error);
+            }
+        };
+
+        fetchProjectData();
+    }, [projectId]);
+
+    useEffect(() => {
+        if (!project) return;
+
         const upvotedProjects = JSON.parse(localStorage.getItem("upvotedProjects") || "[]");
         if (upvotedProjects.some((p: Project) => p.id === project.id)) {
             setHasUpvoted(true);
@@ -21,10 +44,10 @@ export default function ProjectCard({ data }: ProjectCardProps) {
         if (claimedProjects.some((p: Project) => p.id === project.id)) {
             setHasClaimed(true);
         }
-    }, [project.id]);
+    }, [project]);
 
     const handleAction = async (action: string) => {
-        if (isProcessing) return; // Prevent multiple clicks during API request
+        if (isProcessing || !project) return; 
         setIsProcessing(true);
 
         let upvotedProjects = JSON.parse(localStorage.getItem("upvotedProjects") || "[]");
@@ -71,13 +94,15 @@ export default function ProjectCard({ data }: ProjectCardProps) {
                 localStorage.setItem("claimedProjects", JSON.stringify(claimedProjects));
             }
 
-            setProject({ ...project }); // Update state with modified project
+            setProject({ ...project }); 
         } else {
             alert("Failed to update project.");
         }
 
         setIsProcessing(false);
     };
+
+    if (!project) return <Skeleton />;
 
     return (
         <div className="bg-[#ffffff] text-black p-6 rounded-xl border border-gray-700 shadow-lg w-full max-w-2xl mx-auto h-fit hover:drop-shadow-2xl transition duration-300">
@@ -89,7 +114,10 @@ export default function ProjectCard({ data }: ProjectCardProps) {
             {/* Tags Section */}
             <div className="flex flex-wrap gap-2 mb-4">
                 {project.tags.map((tag, i) => (
-                    <span key={i} className="bg-gray-300 text-gray-700 text-xs sm:text-sm px-3 py-1 rounded-full">
+                    <span
+                        key={i}
+                        className="bg-gray-300 text-gray-700 text-xs sm:text-sm px-3 py-1 rounded-full"
+                    >
                         {tag}
                     </span>
                 ))}

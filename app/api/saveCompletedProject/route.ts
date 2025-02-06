@@ -1,49 +1,73 @@
+// /api/saveCompletedProject/route.ts
 import { NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
+import { db } from "@/lib/prisma";
 
-const filePath = path.join(process.cwd(), "/public/completedProjects.json");
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
     try {
-        const { userEmail, githubLink, projectName } = await req.json();
-        if (!userEmail || !githubLink || !projectName) {
-            return NextResponse.json({ error: "All fields are required." }, { status: 400 });
+        // Parse the request body
+        const body = await request.json();
+        const { projectId, userEmail, githubLink } = body;
+
+        // Validate input
+        if (!projectId || !userEmail || !githubLink) {
+            return NextResponse.json(
+                { error: "All fields (projectId, userEmail, githubLink) are required." },
+                { status: 400 }
+            );
         }
 
-        let projectId = 1;
-        let completedProjects: any[] = [];
-        
-        // Check if the JSON file exists and read it
-        if (fs.existsSync(filePath)) {
-            const fileData = fs.readFileSync(filePath, "utf8");
-            completedProjects = JSON.parse(fileData);
-            if (completedProjects.length > 0) {
-                const lastProject = completedProjects[completedProjects.length - 1];
-                projectId = lastProject.projectId + 1; // Increment project ID
-            }
-        } else {
-            // If the file does not exist, initialize the projects array
-            completedProjects = [];
+        // Check if the project exists
+        const project = await db.project.findUnique({
+            where: { id: projectId },
+        });
+
+        if (!project) {
+            return NextResponse.json(
+                { error: "Project not found." },
+                { status: 404 }
+            );
         }
 
-        // Create a new project entry
-        const newEntry = {
-            projectId,
-            projectName,
-            userWhoCompleted: userEmail,
-            projectLink: githubLink,
-        };
+        // Check if the project has already been completed by this user
+        const existingCompletion = await db.completedProject.findUnique({
+            where: { projectId },
+        });
 
-        // Add the new entry to the array
-        completedProjects.push(newEntry);
+        if (existingCompletion) {
+            return NextResponse.json(
+                { error: "This project has already been marked as completed." },
+                { status: 409 } // Conflict status code
+            );
+        }
 
-        // Write the updated array to the JSON file
-        fs.writeFileSync(filePath, JSON.stringify(completedProjects, null, 2));
+        // Create the completed project entry
+        const completedProject = await db.completedProject.create({
+            data: {
+                projectId,
+                userEmail,
+                githubLink,
+            },
+        });
 
-        return NextResponse.json({ message: "Project submitted successfully!" }, { status: 200 });
+        // Update the `completed` field in the Project table
+        await db.project.update({
+            where: { id: projectId },
+            data: { completed: { increment: 1 } },
+        });
+
+        // Return success response
+        return NextResponse.json(
+            { message: "Project marked as completed successfully.", completedProject },
+            { status: 201 }
+        );
     } catch (error) {
-        console.error(error);
-        return NextResponse.json({ error: "Failed to submit project." }, { status: 500 });
+        console.error("Error saving completed project:", error);
+        return NextResponse.json(
+            { error: "Internal Server Error" },
+            { status: 500 }
+        );
+    } finally {
+        await db.$disconnect(); // Disconnect Prisma client
     }
 }

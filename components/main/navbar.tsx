@@ -30,6 +30,9 @@ export default function Navbar() {
                 <Link href="/claimed" className={`text-black hover:underline font-semibold ${pathname === '/claimed' ? 'underline' : ''}`}>
                     Claimed
                 </Link>
+                <Link href="/completedProjects" className={`text-black hover:underline font-semibold ${pathname === '/completedProjects' ? 'underline' : ''}`}>
+                    Completed Projects
+                </Link>
             </div>
 
             {/* GitHub Button & Mobile Menu Button */}

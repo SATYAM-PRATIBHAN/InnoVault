@@ -1,39 +1,47 @@
-import fs from "fs";
-import path from "path";
+import { db } from "@/lib/prisma";  // ✅ Import global database instance
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
     try {
         const { id, action, remove } = await req.json();
-        const filePath = path.join(process.cwd(), "public", "projects.json");
 
-        // Read the JSON file
-        let jsonData = [];
-        if (fs.existsSync(filePath)) {
-            const fileData = fs.readFileSync(filePath, "utf8");
-            jsonData = JSON.parse(fileData);
+        // Find the project by ID in the database
+        const project = await db.project.findUnique({
+            where: { id },
+        });
+
+        if (!project) {
+            return NextResponse.json({ success: false, error: "Project not found" }, { status: 404 });
         }
 
         // Update the project based on the action
-        const updatedData = jsonData.map((project: any) => {
-            if (project.id === id) {
-                const updatedProject = { ...project };
-                if (action === "upvote") {
-                    updatedProject.upvotes = remove ? updatedProject.upvotes - 1 : updatedProject.upvotes + 1;
-                } else if (action === "claim") {
-                    updatedProject.claims = remove ? updatedProject.claims - 1 : updatedProject.claims + 1;
-                } else if (action === "complete") {
-                    updatedProject.claims = remove ? updatedProject.claims - 1 : updatedProject.claims + 1;
-                }
-                return updatedProject;
-            }
-            return project;
-        });
+        let updatedProject;
+        if (action === "upvote") {
+            updatedProject = await db.project.update({
+                where: { id },
+                data: {
+                    upvotes: remove ? project.upvotes - 1 : project.upvotes + 1,
+                },
+            });
+        } else if (action === "claim") {
+            updatedProject = await db.project.update({
+                where: { id },
+                data: {
+                    claims: remove ? project.claims - 1 : project.claims + 1,
+                },
+            });
+        } else if (action === "complete") {
+            updatedProject = await db.project.update({
+                where: { id },
+                data: {
+                    completed: remove ? project.completed - 1 : project.completed + 1,
+                },
+            });
+        } else {
+            return NextResponse.json({ success: false, error: "Invalid action" }, { status: 400 });
+        }
 
-        // Write the updated data back to the JSON file
-        fs.writeFileSync(filePath, JSON.stringify(updatedData, null, 2), "utf8");
-
-        return NextResponse.json({ success: true });
+        return NextResponse.json({ success: true, project: updatedProject });
     } catch (error) {
         console.error("Error updating project:", error);
         return NextResponse.json({ success: false, error: "Failed to update project" }, { status: 500 });
