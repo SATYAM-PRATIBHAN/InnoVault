@@ -1,13 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { NextApiRequest, NextApiResponse } from "next";
-import { restrictByIP } from "@/utils/ipWhiteList";
-
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    restrictByIP(req, res, () => {
-        res.json({ message: "This route is restricted by IP." });
-    });
-}
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {

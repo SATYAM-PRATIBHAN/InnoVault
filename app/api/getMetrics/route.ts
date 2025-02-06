@@ -2,14 +2,7 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import { register, collectDefaultMetrics, Counter, Gauge } from "prom-client";
-import { NextApiRequest, NextApiResponse } from "next";
-import { restrictByIP } from "@/utils/ipWhiteList";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    restrictByIP(req, res, () => {
-        res.json({ message: "This route is restricted by IP." });
-    });
-}
 // Enable default metrics (e.g., memory usage, CPU, etc.)
 collectDefaultMetrics();
 

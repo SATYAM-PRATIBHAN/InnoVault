@@ -1,13 +1,6 @@
 import { db } from "@/lib/prisma";  // ✅ Import global database instance
 import { NextRequest, NextResponse } from "next/server";
-import { NextApiRequest, NextApiResponse } from "next";
-import { restrictByIP } from "@/utils/ipWhiteList";
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    restrictByIP(req, res, () => {
-        res.json({ message: "This route is restricted by IP." });
-    });
-}
 export async function POST(req: NextRequest) {
     try {
         const { id, action, remove } = await req.json();
