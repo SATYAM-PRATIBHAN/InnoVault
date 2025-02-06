@@ -4,7 +4,7 @@ import Link from "next/link";
 import { jura } from "@/fonts/fonts";
 import { usePathname } from "next/navigation";
 import { FaGithub, FaBars, FaTimes } from "react-icons/fa";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 
 export default function Navbar() {
     const pathname = usePathname();
