@@ -1,15 +1,23 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 
-export async function GET(req: NextRequest, context: { params: { id: string } }) {
+export async function GET(req: NextRequest, res: NextResponse) {
     try {
-        const projectId = parseInt(context.params.id, 10);
+        const url = new URL(req.url);
+        const id = url.pathname.split("/").pop(); // Extract the last part of the URL (ID)
+
+        if (!id) {
+            return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+        }
+
+        const projectId = parseInt(id, 10);
         if (isNaN(projectId)) {
             return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
         }
 
-        const project = await db.project.findUnique({
+        const project = await prisma.project.findUnique({
             where: { id: projectId },
         });
 
