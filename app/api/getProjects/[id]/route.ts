@@ -1,15 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import { db } from "@/lib/prisma";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+
+export async function GET(
+    req: NextRequest,
+    { params }: { params: { id: string }; searchParams?: { [key: string]: string } }
+) {
     try {
         const projectId = parseInt(params.id, 10);
         if (isNaN(projectId)) {
             return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
         }
 
-        const project = await prisma.project.findUnique({
+        const project = await db.project.findUnique({
             where: { id: projectId },
         });
 
