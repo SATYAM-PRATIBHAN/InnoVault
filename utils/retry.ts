@@ -3,7 +3,7 @@ export async function retry<T>(operation: () => Promise<T>, retries: number = 10
       try {
           return await operation(); // Attempt the operation
       } catch (error) {
-          console.error(`Attempt ${attempt} failed:`, error);
+          console.log(`Attempt ${attempt} failed:`, error);
           if (attempt < retries) {
               await new Promise(res => setTimeout(res, delay)); // Wait before retrying
           } else {

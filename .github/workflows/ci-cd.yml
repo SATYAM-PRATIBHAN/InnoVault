@@ -37,7 +37,7 @@ jobs:
 
       # Step 4: Install dependencies
       - name: Install Dependencies
-        run: npm install
+        run: npm install --force
 
       # Step 7: Lints the code
       - name: Lint Code

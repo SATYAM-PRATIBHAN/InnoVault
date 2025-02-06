@@ -94,7 +94,7 @@ export default function ProjectList() {
     };
 
     // Handle form input changes
-    const handleInputChange = (
+    const handleInputChange = ( 
         e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
     ) => {
         const { name, value } = e.target;
