@@ -1,25 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
-import { db } from "@/lib/prisma";
+import { PrismaClient } from "@prisma/client";
 
+const prisma = new PrismaClient();
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string }; searchParams?: { [key: string]: string } }
+    { params }: { params: { [key: string]: string | string[] } } // Correct type
 ) {
     try {
-        const projectId = parseInt(params.id, 10);
-        if (isNaN(projectId)) {
+        // Extract the project ID from params
+        const projectId = Array.isArray(params.id) ? params.id[0] : params.id;
+
+        // Validate the project ID
+        const parsedProjectId = parseInt(projectId, 10);
+        if (isNaN(parsedProjectId)) {
             return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
         }
 
-        const project = await db.project.findUnique({
-            where: { id: projectId },
+        // Fetch the project from the database
+        const project = await prisma.project.findUnique({
+            where: { id: parsedProjectId },
         });
 
+        // Handle project not found
         if (!project) {
             return NextResponse.json({ error: "Project not found" }, { status: 404 });
         }
 
+        // Return the project
         return NextResponse.json(project, { status: 200 });
     } catch (error) {
         console.error("Error fetching project:", error);
