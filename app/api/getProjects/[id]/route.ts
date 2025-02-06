@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+
+export async function GET(req: NextRequest) {
     try {
-        const projectId = parseInt(params.id, 10);
+        // Extract `id` from the request URL
+        const { pathname } = new URL(req.url);
+        const parts = pathname.split("/");
+        const id = parts[parts.length - 1]; // Get last part of the URL (ID)
+
+        if (!id) {
+            return NextResponse.json({ error: "Project ID is required" }, { status: 400 });
+        }
+
+        const projectId = parseInt(id, 10);
         if (isNaN(projectId)) {
             return NextResponse.json({ error: "Invalid project ID" }, { status: 400 });
         }
