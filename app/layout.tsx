@@ -20,7 +20,29 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "InnoVault",
-  description: " A Community-Driven Idea Vault",
+  description:
+    "InnoVault is an open-source platform where developers share, upvote, and collaborate on project ideas. Start innovating now!",
+  openGraph: {
+    title: "InnoVault",
+    description:
+      "InnoVault is an open-source platform where developers share, upvote, and collaborate on project ideas.",
+    url: "https://yourdomain.com",
+    images: [
+      {
+        url: "/ss.png", // Reference the image in the public folder
+        width: 1200,
+        height: 630,
+        alt: "InnoVault - Open Source Idea Vault",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "InnoVault",
+    description:
+      "InnoVault is an open-source platform where developers share, upvote, and collaborate on project ideas.",
+    images: ["/ss.png"], // Reference the image in the public folder
+  },
 };
 
 export default function RootLayout({
