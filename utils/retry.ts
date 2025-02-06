@@ -1,4 +1,4 @@
-export async function retry<T>(operation: () => Promise<T>, retries: number = 3, delay: number = 1000): Promise<T> {
+export async function retry<T>(operation: () => Promise<T>, retries: number = 10, delay: number = 1000): Promise<T> {
   for (let attempt = 1; attempt <= retries; attempt++) {
       try {
           return await operation(); // Attempt the operation
