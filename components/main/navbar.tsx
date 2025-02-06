@@ -9,6 +9,23 @@ import { useState } from "react";
 export default function Navbar() {
     const pathname = usePathname();
     const [menuOpen, setMenuOpen] = useState(false);
+    const dropdownRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        function handleClickOutside(event: MouseEvent) {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setMenuOpen(false);
+            }
+        }
+
+        if (menuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [menuOpen]);
 
     return (
         <nav className="px-4 py-2 bg-[#ffffff] flex justify-between items-center relative z-50">
@@ -51,7 +68,7 @@ export default function Navbar() {
 
             {/* Mobile Dropdown Menu */}
             {menuOpen && (
-                <div className="absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-center py-4 md:hidden">
+                <div ref={dropdownRef} className="absolute top-16 left-0 w-full bg-white shadow-lg flex flex-col items-center py-4 md:hidden">
                     <Link href="/about" className="text-black py-2 hover:underline w-full text-center" onClick={() => setMenuOpen(false)}>
                         About
                     </Link>
