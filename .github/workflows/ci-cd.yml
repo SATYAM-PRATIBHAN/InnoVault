@@ -1,9 +1,6 @@
-# .github/workflows/ci-cd.yml
-
 name: CI Pipeline for Next.js Project
 
 on:
-  # Trigger the pipeline on push to the main branch or pull requests
   push:
     branches:
       - main
