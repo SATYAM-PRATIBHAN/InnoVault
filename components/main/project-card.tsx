@@ -35,7 +35,7 @@ export default function ProjectCard({ projectId }: ProjectCardProps) {
                     const data = await res.json();
 
                     // Cache the fetched data in localStorage (store the full list)
-                    let allProjects = JSON.parse(localStorage.getItem("projects") || "[]");
+                    const allProjects = JSON.parse(localStorage.getItem("projects") || "[]");
                     allProjects.push(data);
                     localStorage.setItem("projects", JSON.stringify(allProjects));
 
