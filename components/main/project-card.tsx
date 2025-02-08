@@ -15,11 +15,30 @@ export default function ProjectCard({ projectId }: ProjectCardProps) {
     const [isProcessing, setIsProcessing] = useState(false);
 
     useEffect(() => {
+        // First, check if the projects list is available in localStorage
+        const cachedProjects = JSON.parse(localStorage.getItem("projects") || "[]");
+
+        if (cachedProjects.length > 0) {
+            // If projects are cached, find the project by ID
+            const projectFromCache = cachedProjects.find((p: Project) => p.id === projectId);
+            if (projectFromCache) {
+                setProject(projectFromCache);
+                return;  // Skip the API call if the project is in cache
+            }
+        }
+
+        // Otherwise, fetch the project data
         const fetchProjectData = async () => {
             try {
                 const res = await fetch(`/api/getProjects/${projectId}`);
                 if (res.ok) {
                     const data = await res.json();
+
+                    // Cache the fetched data in localStorage (store the full list)
+                    let allProjects = JSON.parse(localStorage.getItem("projects") || "[]");
+                    allProjects.push(data);
+                    localStorage.setItem("projects", JSON.stringify(allProjects));
+
                     setProject(data);
                 } else {
                     console.error("Failed to fetch project data");
@@ -47,7 +66,7 @@ export default function ProjectCard({ projectId }: ProjectCardProps) {
     }, [project]);
 
     const handleAction = async (action: string) => {
-        if (isProcessing || !project) return; 
+        if (isProcessing || !project) return;
         setIsProcessing(true);
 
         let upvotedProjects = JSON.parse(localStorage.getItem("upvotedProjects") || "[]");
@@ -94,7 +113,7 @@ export default function ProjectCard({ projectId }: ProjectCardProps) {
                 localStorage.setItem("claimedProjects", JSON.stringify(claimedProjects));
             }
 
-            setProject({ ...project }); 
+            setProject({ ...project });
         } else {
             alert("Failed to update project.");
         }
