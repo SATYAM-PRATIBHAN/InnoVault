@@ -26,17 +26,10 @@ export const metadata: Metadata = {
     title: "InnoVault",
     description:
       "InnoVault is an open-source platform where developers share, upvote, and collaborate on project ideas.",
-<<<<<<< HEAD
-    url: "https://yourdomain.com",
+    url: "https://innovault-tan.vercel.app/",  // Kept the updated URL
     images: [
       {
-        url: "/ss1.png", // Reference the image in the public folder
-=======
-    url: "https://innovault-tan.vercel.app/",
-    images: [
-      {
-        url: "/ss.png",
->>>>>>> 73f9028 (updated meta tags)
+        url: "/ss.png",  // Kept the updated image reference
         width: 1200,
         height: 630,
         alt: "InnoVault - Open Source Idea Vault",
@@ -48,11 +41,7 @@ export const metadata: Metadata = {
     title: "InnoVault",
     description:
       "InnoVault is an open-source platform where developers share, upvote, and collaborate on project ideas.",
-<<<<<<< HEAD
-    images: ["/ss1.png"], // Reference the image in the public folder
-=======
-    images: ["/ss.png"],
->>>>>>> 73f9028 (updated meta tags)
+    images: ["/ss.png"],  // Kept the updated image reference
   },
 };
 
@@ -63,15 +52,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${jura.className} antialiased`}
         suppressHydrationWarning
       >
         {children}
-        
       </body>
     </html>
   );
 }
-
