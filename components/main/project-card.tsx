@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Project } from "@/public/types";
 import Skeleton from "./projectcardskeleton";
 
@@ -13,6 +13,18 @@ export default function ProjectCard({ projectId }: ProjectCardProps) {
     const [hasUpvoted, setHasUpvoted] = useState(false);
     const [hasClaimed, setHasClaimed] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const descriptionRef = useRef<HTMLParagraphElement>(null);
+    const [shouldScroll, setShouldScroll] = useState(false);
+
+    useEffect(() => {
+        if (descriptionRef.current) {
+            const lineHeight = parseFloat(getComputedStyle(descriptionRef.current).lineHeight);
+            const maxHeight = 3 * lineHeight; 
+            if (descriptionRef.current.scrollHeight > maxHeight) {
+                setShouldScroll(true);
+            }
+        }
+    }, [project?.description]);
 
     useEffect(() => {
         // First, check if the projects list is available in localStorage
@@ -35,7 +47,7 @@ export default function ProjectCard({ projectId }: ProjectCardProps) {
                     const data = await res.json();
 
                     // Cache the fetched data in localStorage (store the full list)
-                    const allProjects = JSON.parse(localStorage.getItem("projects") || "[]");
+                    let allProjects = JSON.parse(localStorage.getItem("projects") || "[]");
                     allProjects.push(data);
                     localStorage.setItem("projects", JSON.stringify(allProjects));
 
@@ -143,9 +155,16 @@ export default function ProjectCard({ projectId }: ProjectCardProps) {
             </div>
 
             {/* Idea Description */}
-            <div className="bg-white text-black p-4 rounded-lg mb-4 border border-gray-700">
-                <p className="text-sm sm:text-base leading-relaxed">{project.description}</p>
+            <div className="bg-white text-black p-2 rounded-lg mb-4 border border-gray-700">
+                <div
+                    className={`p-1 ${shouldScroll ? "h-24 overflow-y-auto" : ""}`}
+                >
+                    <p ref={descriptionRef} className="text-sm sm:text-base leading-relaxed">
+                        {project.description}
+                    </p>
+                </div>
             </div>
+
 
             {/* Upvotes, Status, Claims */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center text-gray-400 text-sm mb-4 gap-2">
